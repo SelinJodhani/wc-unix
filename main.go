@@ -33,7 +33,6 @@ func main() {
 		}
 
 		fmt.Println(byteCount, flag.Args()[0])
-
 		return
 	}
 
@@ -45,7 +44,9 @@ func main() {
 		}
 
 		fmt.Println(lineCount, flag.Args()[0])
-
 		return
 	}
+
+	fmt.Println("No flags found!!")
+	return
 }
