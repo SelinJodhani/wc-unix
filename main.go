@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"sync"
 
 	"github.com/SelinJodhani/wc-unix/utils"
 )
@@ -17,49 +18,103 @@ func main() {
 
 	fileName := flag.Args()[0]
 
+	var wg sync.WaitGroup
+
+	byteResult := make(chan int, 1)
+	wordResult := make(chan int, 1)
+	lineResult := make(chan int, 1)
+	charResult := make(chan int, 1)
+
+	if !*cflag && !*lflag && !*wflag && !*mflag {
+		*cflag = true
+		*lflag = true
+		*wflag = true
+	}
+
 	if *cflag {
-		byteCount, err := utils.CountBytes(fileName)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			defer close(byteResult)
 
-		if err != nil {
-			panic(err)
-		}
+			bytes, err := utils.CountBytes(fileName)
 
-		fmt.Println(byteCount, fileName)
-		return
+			if err != nil {
+				panic(err)
+			}
+
+			byteResult <- bytes
+		}()
 	}
 
 	if *lflag {
-		lineCount, err := utils.CountLines(fileName)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			defer close(lineResult)
 
-		if err != nil {
-			panic(err)
-		}
+			lines, err := utils.CountLines(fileName)
 
-		fmt.Println(lineCount, fileName)
-		return
+			if err != nil {
+				panic(err)
+			}
+
+			lineResult <- lines
+		}()
 	}
 
 	if *wflag {
-		wordCount, err := utils.CountWords(fileName)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			defer close(wordResult)
 
-		if err != nil {
-			panic(err)
-		}
+			words, err := utils.CountWords(fileName)
 
-		fmt.Println(wordCount, fileName)
-		return
+			if err != nil {
+				panic(err)
+			}
+
+			wordResult <- words
+		}()
 	}
 
 	if *mflag {
-		charCount, err := utils.CountChars(fileName)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			defer close(charResult)
 
-		if err != nil {
-			panic(err)
-		}
+			chars, err := utils.CountChars(fileName)
 
-		fmt.Println(charCount, flag.Args()[0])
-		return
+			if err != nil {
+				panic(err)
+			}
+
+			charResult <- chars
+		}()
 	}
 
+	wg.Wait()
+
+	fmt.Print(" ")
+
+	if *lflag {
+		fmt.Print(<-lineResult)
+	}
+
+	if *wflag {
+		fmt.Print(<-wordResult)
+	}
+
+	if *cflag {
+		fmt.Print(<-byteResult)
+	}
+
+	if *mflag {
+		fmt.Print(<-charResult)
+	}
+
+	fmt.Println(" ", fileName)
 	return
 }
