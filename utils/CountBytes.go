@@ -1,26 +1,23 @@
 package utils
 
-import "os"
+import (
+	"os"
+)
 
-func CountBytes(file os.File) (int, error) {
-	var byteCountInFile int
+func CountBytes(fileName string) (int, error) {
+	file, err := os.Open(fileName)
 
-	buffer := make([]byte, 4096)
+	defer file.Close()
 
-	for {
-		n, err := file.Read(buffer)
-
-		// EOF
-		if n == 0 {
-			break
-		}
-
-		if err != nil {
-			return 0, err
-		}
-
-		byteCountInFile += n
+	if err != nil {
+		return 0, err
 	}
 
-	return byteCountInFile, nil
+	fileInfo, err := file.Stat()
+
+	if err != nil {
+		return 0, err
+	}
+
+	return int(fileInfo.Size()), nil
 }

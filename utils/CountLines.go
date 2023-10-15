@@ -1,30 +1,23 @@
 package utils
 
 import (
+	"bufio"
 	"os"
 )
 
-func CountLines(file os.File) (int, error) {
+func CountLines(fileName string) (int, error) {
+	count := 0
+	file, err := os.Open(fileName)
 
-	var numberOfLines int
-	var currentChar [1]byte
-
-	for {
-		n, err := file.Read(currentChar[:])
-
-		// EOF
-		if n == 0 {
-			break
-		}
-
-		if err != nil {
-			return 0, err
-		}
-
-		if currentChar[0] == '\n' {
-			numberOfLines += 1
-		}
+	if err != nil {
+		return 0, err
 	}
 
-	return numberOfLines, nil
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		count += 1
+	}
+
+	return count, nil
 }
