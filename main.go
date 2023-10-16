@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"sync"
 
@@ -27,26 +28,54 @@ func main() {
 
 	flag.Parse()
 
+	var r io.Reader
+	var fileName string
+	var cleanup func()
+
 	if len(flag.Args()) == 0 {
-		fmt.Println("No file specified!")
-		return
+		r = os.Stdin
+	} else {
+		fileName = flag.Args()[0]
+		file, err := os.Open(fileName)
+
+		if os.IsNotExist(err) {
+			fmt.Println(err)
+			return
+		}
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		defer file.Close()
+		r = file
 	}
 
-	fileName := flag.Args()[0]
+	if r == os.Stdin {
+		tempFile, err := os.CreateTemp("", "stdin-tempfile-")
 
-	file, err := os.Open(fileName)
+		if err != nil {
+			fmt.Println("Error creating temporary file:", err)
+			os.Exit(1)
+		}
 
-	if os.IsNotExist(err) {
-		fmt.Println(err)
-		return
+		defer tempFile.Close()
+		defer os.Remove(tempFile.Name())
+
+		_, err = io.Copy(tempFile, os.Stdin)
+
+		if err != nil {
+			fmt.Println("Error copying stdin to temporary file:", err)
+			os.Exit(1)
+		}
+
+		r = tempFile
+		fileName = tempFile.Name()
+		cleanup = func() {
+			os.Remove(tempFile.Name()) // Ensure temporary file is deleted
+		}
 	}
-
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	file.Close()
 
 	var wg sync.WaitGroup
 
@@ -145,6 +174,13 @@ func main() {
 		fmt.Print(" ", <-charResult)
 	}
 
-	fmt.Println(" ", fileName)
-	return
+	if r != os.Stdin {
+		fmt.Println(" ", fileName)
+	} else {
+		fmt.Println(" ")
+	}
+
+	if cleanup != nil {
+		cleanup()
+	}
 }
