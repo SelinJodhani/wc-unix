@@ -7,11 +7,10 @@ import (
 	"os"
 	"sync"
 
-	"github.com/SelinJodhani/wc-unix/utils"
+	"github.com/SelinJodhani/wc-unix/internal/count"
 )
 
 func main() {
-
 	var bytesFlag, linesFlag, wordsFlag, charsFlag bool
 
 	flag.BoolVar(&bytesFlag, "c", false, "Returns number of bytes stored in file if true")
@@ -94,7 +93,7 @@ func main() {
 			defer wg.Done()
 			defer close(byteResult)
 
-			bytes, err := utils.CountBytes(fileName)
+			bytes, err := count.Bytes(fileName)
 
 			if err != nil {
 				panic(err)
@@ -110,7 +109,7 @@ func main() {
 			defer wg.Done()
 			defer close(lineResult)
 
-			lines, err := utils.CountLines(fileName)
+			lines, err := count.Lines(fileName)
 
 			if err != nil {
 				panic(err)
@@ -126,7 +125,7 @@ func main() {
 			defer wg.Done()
 			defer close(wordResult)
 
-			words, err := utils.CountWords(fileName)
+			words, err := count.Words(fileName)
 
 			if err != nil {
 				panic(err)
@@ -142,7 +141,7 @@ func main() {
 			defer wg.Done()
 			defer close(charResult)
 
-			chars, err := utils.CountChars(fileName)
+			chars, err := count.Chars(fileName)
 
 			if err != nil {
 				panic(err)

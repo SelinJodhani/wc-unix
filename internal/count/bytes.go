@@ -1,10 +1,10 @@
-package utils
+package count
 
 import (
 	"os"
 )
 
-func CountBytes(fileName string) (int, error) {
+func Bytes(fileName string) (int, error) {
 	file, err := os.Open(fileName)
 
 	if err != nil {

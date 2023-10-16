@@ -1,4 +1,4 @@
-package utils
+package count
 
 import (
 	"bufio"
@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func CountChars(fileName string) (int, error) {
+func Chars(fileName string) (int, error) {
 	file, err := os.Open(fileName)
 
 	if err != nil {

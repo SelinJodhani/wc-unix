@@ -6,6 +6,16 @@ This challenge corresponds to the first part of the Coding Challenges series by 
 
 The WC tool is written in `go`. The tool is used to count the number of words, lines, bytes and characters in a file/stdin.
 
+## Build
+
+You can build this project as follows:
+
+```bash
+go build ./cmd/ccwc
+```
+
+This will make binary file in the root directory named `ccwc`. Binary file of this project is already present inside `./bin/ccwc`.
+
 ## Usage
 
 You can use `./bin/ccwc` to run the tool as follows:

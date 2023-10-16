@@ -1,11 +1,12 @@
-package utils
+package count
 
 import (
 	"bufio"
 	"os"
+	"strings"
 )
 
-func CountLines(fileName string) (int, error) {
+func Words(fileName string) (int, error) {
 	file, err := os.Open(fileName)
 
 	if err != nil {
@@ -16,7 +17,9 @@ func CountLines(fileName string) (int, error) {
 	scanner := bufio.NewScanner(file)
 
 	for scanner.Scan() {
-		count += 1
+		line := scanner.Text()
+		words := strings.Fields(line)
+		count += len(words)
 	}
 
 	return count, nil
