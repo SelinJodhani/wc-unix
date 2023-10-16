@@ -49,7 +49,6 @@ func main() {
 		}
 
 		defer file.Close()
-		r = file
 	}
 
 	if r == os.Stdin {
@@ -70,7 +69,6 @@ func main() {
 			os.Exit(1)
 		}
 
-		r = tempFile
 		fileName = tempFile.Name()
 		cleanup = func() {
 			os.Remove(tempFile.Name()) // Ensure temporary file is deleted
