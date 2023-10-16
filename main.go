@@ -3,20 +3,50 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 	"sync"
 
 	"github.com/SelinJodhani/wc-unix/utils"
 )
 
 func main() {
-	cflag := flag.Bool("c", false, "Returns number of bytes stored in file if true")
-	lflag := flag.Bool("l", false, "Returns number of lines in a file if true")
-	wflag := flag.Bool("w", false, "Returns number of words in a file if true")
-	mflag := flag.Bool("m", false, "Returns number of characters in a file if true")
+
+	var bytesFlag, linesFlag, wordsFlag, charsFlag bool
+
+	flag.BoolVar(&bytesFlag, "c", false, "Returns number of bytes stored in file if true")
+	flag.BoolVar(&bytesFlag, "bytes", false, "Returns number of bytes stored in file if true")
+
+	flag.BoolVar(&linesFlag, "l", false, "Returns number of lines in a file if true")
+	flag.BoolVar(&linesFlag, "lines", false, "Returns number of lines in a file if true")
+
+	flag.BoolVar(&wordsFlag, "w", false, "Returns number of words in a file if true")
+	flag.BoolVar(&wordsFlag, "words", false, "Returns number of words in a file if true")
+
+	flag.BoolVar(&charsFlag, "m", false, "Returns number of characters in a file if true")
+	flag.BoolVar(&charsFlag, "chars", false, "Returns number of characters in a file if true")
 
 	flag.Parse()
 
+	if len(flag.Args()) == 0 {
+		fmt.Println("No file specified!")
+		return
+	}
+
 	fileName := flag.Args()[0]
+
+	file, err := os.Open(fileName)
+
+	if os.IsNotExist(err) {
+		fmt.Println(err)
+		return
+	}
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	file.Close()
 
 	var wg sync.WaitGroup
 
@@ -25,13 +55,13 @@ func main() {
 	lineResult := make(chan int, 1)
 	charResult := make(chan int, 1)
 
-	if !*cflag && !*lflag && !*wflag && !*mflag {
-		*cflag = true
-		*lflag = true
-		*wflag = true
+	if !bytesFlag && !linesFlag && !wordsFlag && !charsFlag {
+		bytesFlag = true
+		linesFlag = true
+		wordsFlag = true
 	}
 
-	if *cflag {
+	if bytesFlag {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -47,7 +77,7 @@ func main() {
 		}()
 	}
 
-	if *lflag {
+	if linesFlag {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -63,7 +93,7 @@ func main() {
 		}()
 	}
 
-	if *wflag {
+	if wordsFlag {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -79,7 +109,7 @@ func main() {
 		}()
 	}
 
-	if *mflag {
+	if charsFlag {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -99,20 +129,20 @@ func main() {
 
 	fmt.Print(" ")
 
-	if *lflag {
-		fmt.Print(<-lineResult)
+	if linesFlag {
+		fmt.Print(" ", <-lineResult)
 	}
 
-	if *wflag {
-		fmt.Print(<-wordResult)
+	if wordsFlag {
+		fmt.Print(" ", <-wordResult)
 	}
 
-	if *cflag {
-		fmt.Print(<-byteResult)
+	if bytesFlag {
+		fmt.Print(" ", <-byteResult)
 	}
 
-	if *mflag {
-		fmt.Print(<-charResult)
+	if charsFlag {
+		fmt.Print(" ", <-charResult)
 	}
 
 	fmt.Println(" ", fileName)
