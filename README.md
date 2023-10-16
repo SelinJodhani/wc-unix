@@ -1,6 +1,6 @@
 # Challenge 1 - wc unix tool
 
-This challenge corresponds to the first part of the Coding Challenges series by John Crickett https://codingchallenges.fyi/challenges/challenge-wc.
+This challenge corresponds to the first part of the Coding Challenges series by [John Crickett](https://codingchallenges.fyi/challenges/challenge-wc).
 
 ## Description
 
